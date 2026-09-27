@@ -2,6 +2,7 @@ import authorize from "@/lib/authorize";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { connectDB } from "@/lib/mongodb";
 import Class from "@/models/Class";
+import mongoose from "mongoose";
 
 export async function GET(request, { params }) {
   const user = await getCurrentUser();
@@ -12,12 +13,17 @@ export async function GET(request, { params }) {
       { error: "Only an admin or teacher can perform this action" },
       { status: 403 },
     );
+
   const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json({ error: "Invalid class id" }, { status: 400 });
+  }
 
   await connectDB();
-  const classes = await Class.findById(id);
+  const classes = await Class.findById(id).lean();
 
-  if (!classes) return Response.json([]);
+  if (!classes)
+    return Response.json({ error: "Class not found" }, { status: 404 });
   return Response.json(classes);
 }
 

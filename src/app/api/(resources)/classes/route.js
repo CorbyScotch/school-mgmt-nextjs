@@ -32,11 +32,24 @@ export async function POST(request) {
 
   const { level, section } = await request.json();
 
-  if (!level)
-    return Response.json({ error: "Level not provided" }, { status: 400 });
+  if (!level || !section)
+    return Response.json(
+      { error: "Level and section are required" },
+      { status: 400 },
+    );
 
   await connectDB();
-  const newClass = await Class.create({ level, section });
 
-  return Response.json({ message: "Class created", newClass }, { status: 201 });
+  try {
+    const newClass = await Class.create({ level, section });
+
+    return Response.json(
+      { message: "Class created", newClass },
+      { status: 201 },
+    );
+  } catch (err) {
+    if (err.code === 11000)
+      return Response.json({ error: "Class already exists" }, { status: 409 });
+    return Response.json({ error: "Could not create class" }, { status: 500 });
+  }
 }

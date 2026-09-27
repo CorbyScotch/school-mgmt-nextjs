@@ -2,12 +2,20 @@ import authorize from "@/lib/authorize";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { connectDB } from "@/lib/mongodb";
 import AcademicYear from "@/models/AcademicYear";
+import mongoose from "mongoose";
 
 export async function GET(request, { params }) {
   const { id } = await params;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json(
+      { error: "Invalid academic year id" },
+      { status: 400 },
+    );
+  }
+
   await connectDB();
-  const acadYear = await AcademicYear.findById(id);
+  const acadYear = await AcademicYear.findById(id).lean();
 
   if (!acadYear)
     return Response.json({ error: "Year not found" }, { status: 404 });
@@ -26,6 +34,13 @@ export async function PATCH(request, { params }) {
     );
 
   const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json(
+      { error: "Invalid academic year id" },
+      { status: 400 },
+    );
+  }
+
   const body = await request.json();
 
   await connectDB();
@@ -51,6 +66,12 @@ export async function DELETE(request, { params }) {
     );
 
   const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json(
+      { error: "Invalid academic year id" },
+      { status: 400 },
+    );
+  }
 
   await connectDB();
 

@@ -11,6 +11,7 @@ export async function getCurrentUser() {
     const decoded = await verifyToken(token);
     const { userId, role } = decoded.payload;
 
+    if (!userId || !role) return null;
     return { userId, role };
   } catch (err) {
     return null;

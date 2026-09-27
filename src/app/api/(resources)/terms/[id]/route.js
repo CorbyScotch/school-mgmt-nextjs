@@ -2,6 +2,7 @@ import authorize from "@/lib/authorize";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { connectDB } from "@/lib/mongodb";
 import Term from "@/models/Term";
+import mongoose from "mongoose";
 
 export async function GET(request, { params }) {
   const user = await getCurrentUser();
@@ -12,10 +13,14 @@ export async function GET(request, { params }) {
       { error: "Only an admin or teacher can perform this action" },
       { status: 403 },
     );
+
   const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json({ error: "Invalid term id" }, { status: 400 });
+  }
 
   await connectDB();
-  const term = await Term.findById(id);
+  const term = await Term.findById(id).lean();
 
   if (!term) return Response.json({ error: "Term not found" }, { status: 404 });
 
@@ -33,6 +38,9 @@ export async function PATCH(request, { params }) {
     );
 
   const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json({ error: "Invalid term id" }, { status: 400 });
+  }
 
   const body = await request.json();
 
@@ -59,6 +67,9 @@ export async function DELETE(request, { params }) {
     );
 
   const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json({ error: "Invalid term id" }, { status: 400 });
+  }
 
   await connectDB();
 

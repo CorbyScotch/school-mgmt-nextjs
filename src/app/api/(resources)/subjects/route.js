@@ -30,18 +30,35 @@ export async function POST(request) {
     );
 
   const { name, code } = await request.json();
+  const normalizedName = typeof name === "string" ? name.trim() : "";
+  const normalizedCode = typeof code === "string" ? code.trim() : "";
 
-  if (!code || !name)
+  if (!normalizedCode || !normalizedName)
     return Response.json(
-      { error: "Subject code or name not provided " },
+      { error: "Subject code and name are required" },
       { status: 400 },
     );
 
   await connectDB();
-  const newSubject = await Subject.create({ name, code });
+  try {
+    const newSubject = await Subject.create({
+      name: normalizedName,
+      code: normalizedCode.toUpperCase(),
+    });
 
-  return Response.json(
-    { message: "Subject created successfully", newSubject },
-    { status: 201 },
-  );
+    return Response.json(
+      { message: "Subject created successfully", newSubject },
+      { status: 201 },
+    );
+  } catch (err) {
+    if (err.code === 11000)
+      return Response.json(
+        { error: "Subject code already exists" },
+        { status: 409 },
+      );
+    return Response.json(
+      { error: "Could not create subject" },
+      { status: 500 },
+    );
+  }
 }

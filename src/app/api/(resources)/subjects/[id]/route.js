@@ -2,6 +2,7 @@ import authorize from "@/lib/authorize";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { connectDB } from "@/lib/mongodb";
 import Subject from "@/models/Subject";
+import mongoose from "mongoose";
 
 export async function GET(request, { params }) {
   const user = await getCurrentUser();
@@ -13,8 +14,13 @@ export async function GET(request, { params }) {
       { status: 403 },
     );
 
+  const { id } = await params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return Response.json({ error: "Invalid subject id" }, { status: 400 });
+  }
+
   await connectDB();
-  const subject = await Subject.findById(id);
+  const subject = await Subject.findById(id).lean();
 
   if (!subject)
     return Response.json({ error: "Subject not found" }, { status: 404 });

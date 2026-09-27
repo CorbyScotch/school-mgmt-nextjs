@@ -1,6 +1,6 @@
 export default function authorize(user, allowedRoles) {
-  if (!Array.isArray(allowedRoles)) {
-    return [allowedRoles].includes(user.role);
-  }
-  return allowedRoles.includes(user.role);
+  if (!user || !user.role) return false;
+
+  const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
+  return roles.includes(user.role);
 }

@@ -26,4 +26,6 @@ const termSchema = new mongoose.Schema({
   },
 });
 
+termSchema.index({ acadYear: 1, term: 1 }, { unique: true });
+
 export default mongoose.models.Term || mongoose.model("Term", termSchema);

@@ -6,16 +6,24 @@ const studentProfileSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      unique: true,
     },
     studentId: {
       type: String,
+      unique: true,
       required: true,
     },
-    class: {
+    classId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Class",
       required: true,
     },
+    parents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ParentProfile",
+      },
+    ],
     admissionDate: {
       type: Date,
       required: true,
@@ -29,3 +37,6 @@ const studentProfileSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+export default mongoose.models.StudentProfile ||
+  mongoose.model("StudentProfile", studentProfileSchema);
